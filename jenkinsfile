@@ -1,0 +1,58 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_IMAGE = 'arshiya2207/pythonapp'
+        DOCKER_CREDENTIALS_ID = 'dockerhub'
+    }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git 'https://github.com/arshiyashaik-07/minitask-ci-cd.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo 'Building the application...'
+                // Add your app build steps here
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Running tests...'
+                // Add test scripts if any
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Deploying the application...'
+                // Optional for now
+            }
+        }
+
+        stage('Docker Build and Push') {
+            steps {
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', "${DOCKER_CREDENTIALS_ID}") {
+                        def app = docker.build("${DOCKER_IMAGE}:latest")
+                        app.push()
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed!'
+        }
+    }
+}
+
